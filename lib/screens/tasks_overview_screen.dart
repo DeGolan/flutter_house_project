@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:house_project/widgets/task_view.dart';
+import 'package:provider/provider.dart';
 
 import '../providers/tasks.dart';
 
@@ -13,11 +14,19 @@ class TasksOverviewScreen extends StatefulWidget {
 }
 
 class _TasksOverviewScreenState extends State<TasksOverviewScreen> {
-  final tasks = Tasks();
   @override
   Widget build(BuildContext context) {
+    final userName = 'aviv'; //todo get logged user name.
+    final tasks = Provider.of<Tasks>(context);
     final toDoList = tasks.getDoList;
     return Scaffold(
+      drawer: Drawer(
+        child: Container(
+          child: Column(
+            children: [],
+          ),
+        ),
+      ),
       appBar: AppBar(
         // ignore: prefer_const_constructors
         title: Text('Tasks'), //need to replace the name
@@ -30,7 +39,7 @@ class _TasksOverviewScreenState extends State<TasksOverviewScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text('Total Score: ${tasks.getTotalScore('aviv')}'),
+                  Text('Total Score: ${tasks.getTotalScore(userName)}'),
                   // ignore: prefer_const_constructors
                   Text('Hey Aviv'),
                 ],
@@ -44,11 +53,5 @@ class _TasksOverviewScreenState extends State<TasksOverviewScreen> {
         ],
       ),
     );
-  }
-
-  void markAsDone(String taskId, String notes, String doneBy) {
-    setState(() {
-      tasks.markAsDone(taskId, notes, doneBy);
-    });
   }
 }
