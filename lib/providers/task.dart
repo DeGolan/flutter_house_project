@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class Task extends ChangeNotifier {
-  final String id;
+  final String? id;
   final String name;
   final String description;
   final String houseId;
-  final DateTime dueDate;
+  final DateTime? dueDate;
   final int points;
   String doneBy;
   String notes;

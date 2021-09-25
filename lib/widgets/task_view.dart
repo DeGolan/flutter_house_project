@@ -30,7 +30,7 @@ class TaskView extends StatelessWidget {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               Text(
-                calculateTimeLeft(task.dueDate),
+                calculateTimeLeft(task.dueDate!),
                 // ignore: prefer_const_constructors
               )
             ],

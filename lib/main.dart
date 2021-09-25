@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import './screens/add_task_screen.dart';
 import './providers/tasks.dart';
 import '../screens/tasks_overview_screen.dart';
 import '../screens/task_detail_screen.dart';
@@ -17,6 +18,7 @@ class MyApp extends StatelessWidget {
         home: TasksOverviewScreen(),
         routes: {
           TaskDetailScreen.routeName: (ctx) => TaskDetailScreen(),
+          AddTaskScreen.routeName: (ctx) => AddTaskScreen(),
         },
       ),
     );

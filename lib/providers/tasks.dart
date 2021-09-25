@@ -38,16 +38,8 @@ class Tasks extends ChangeNotifier {
   List<Task> _doneList = [];
   Tasks();
 
-  void addTask(
-      String id, String name, String houseId, DateTime dueDate, int points,
-      [String description = '']) {
-    _toDoList.add(Task(
-        name: name,
-        id: id,
-        dueDate: dueDate,
-        houseId: houseId,
-        points: points,
-        description: description));
+  void addTask(Task task) {
+    _toDoList.add(task);
     notifyListeners();
   }
 

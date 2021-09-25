@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:house_project/widgets/task_view.dart';
 import 'package:provider/provider.dart';
 
+import '../widgets/main_drawer.dart';
+import '../widgets/task_view.dart';
 import '../providers/tasks.dart';
+import './add_task_screen.dart';
 
 class TasksOverviewScreen extends StatefulWidget {
   static const routeName = '/tasks-overview-screen';
@@ -20,14 +21,15 @@ class _TasksOverviewScreenState extends State<TasksOverviewScreen> {
     final tasks = Provider.of<Tasks>(context);
     final toDoList = tasks.getDoList;
     return Scaffold(
-      drawer: Drawer(
-        child: Container(
-          child: Column(
-            children: [],
-          ),
-        ),
-      ),
+      drawer: MainDrawer(),
       appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: () =>
+                Navigator.pushNamed(context, AddTaskScreen.routeName),
+            icon: Icon(Icons.add_task),
+          ),
+        ],
         // ignore: prefer_const_constructors
         title: Text('Tasks'), //need to replace the name
       ),
