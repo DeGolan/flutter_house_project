@@ -1,4 +1,6 @@
-class Task {
+import 'package:flutter/material.dart';
+
+class Task extends ChangeNotifier {
   final String id;
   final String name;
   final String description;
@@ -11,7 +13,7 @@ class Task {
   Task(
       {required this.id,
       required this.name,
-      required this.description,
+      this.description = '',
       required this.houseId,
       required this.dueDate,
       this.doneBy = '',

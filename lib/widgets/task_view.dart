@@ -16,7 +16,8 @@ class TaskView extends StatelessWidget {
       margin: EdgeInsets.all(4),
       child: ListTile(
         onTap: () {
-          Navigator.of(context).pushNamed(TaskDetailScreen.routeName);
+          Navigator.of(context)
+              .pushNamed(TaskDetailScreen.routeName, arguments: task.id);
         },
         leading: Padding(
           padding: const EdgeInsets.all(8),

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/task.dart';
+import '../providers/tasks.dart';
 
 class TaskDetailScreen extends StatelessWidget {
   static const routeName = '/task-detail-screen';
@@ -6,8 +10,12 @@ class TaskDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tasks = Provider.of<Tasks>(context, listen: false);
+    final id = ModalRoute.of(context)!.settings.arguments as String;
+    final task = tasks.getDoList.firstWhere(
+        (task) => task.id == id); //add what happends when task not found.
     return Scaffold(
-      appBar: AppBar(title: Text('Task name') //to change
+      appBar: AppBar(title: Text(task.name) //to change
           ),
       body: Column(
         children: [
@@ -22,6 +30,9 @@ class TaskDetailScreen extends StatelessWidget {
           ElevatedButton(
               onPressed: () {
                 print(notesController.text);
+                tasks.markAsDone(
+                    id, notesController.text, 'aviv'); // change to logged user
+                Navigator.of(context).pop();
               },
               child: Text(
                 'Submit',

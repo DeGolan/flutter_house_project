@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import './task.dart';
 
-class Tasks {
-  List<Task> toDoList = [
+class Tasks extends ChangeNotifier {
+  List<Task> _toDoList = [
     Task(
         id: 'id1',
         name: 'name1',
@@ -34,24 +35,38 @@ class Tasks {
         dueDate: DateTime.now().add(Duration(hours: 1))),
   ];
 
-  List<Task> doneList = [];
+  List<Task> _doneList = [];
   Tasks();
 
+  void addTask(
+      String id, String name, String houseId, DateTime dueDate, int points,
+      [String description = '']) {
+    _toDoList.add(Task(
+        name: name,
+        id: id,
+        dueDate: dueDate,
+        houseId: houseId,
+        points: points,
+        description: description));
+    notifyListeners();
+  }
+
   List<Task> get getDoList {
-    return toDoList;
+    return [..._toDoList];
   }
 
   List<Task> get getDoneList {
-    return doneList;
+    return [..._doneList];
   }
 
   void markAsDone(String taskId, String notes, String doneBy) {
     Task task =
-        toDoList.where((taskToFind) => taskToFind.id == taskId).elementAt(0);
+        _toDoList.where((taskToFind) => taskToFind.id == taskId).elementAt(0);
     task.notes = notes;
     task.doneBy = doneBy;
-    doneList.add(task);
-    toDoList.removeWhere((taskToFind) => taskToFind.id == taskId);
+    _doneList.add(task);
+    _toDoList.removeWhere((taskToFind) => taskToFind.id == taskId);
+    notifyListeners();
   }
 
   int getTotalScore(
@@ -59,7 +74,7 @@ class Tasks {
       String email,
       [DateTime? date = null]) {
     var sum = 0;
-    sum = doneList.fold(
+    sum = _doneList.fold(
         0,
         (previousValue, task) =>
             previousValue + (task.doneBy == email ? task.points : 0));
