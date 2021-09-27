@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import './task.dart';
 
@@ -41,16 +42,32 @@ class Tasks extends ChangeNotifier {
     sortTasks();
   }
 
-  void addTask(Task task) {
-    int i = 0;
-    while (i < _toDoList.length) {
-      if (_toDoList[i].compareTo(task) == 1) {
-        break;
+  Future<void> addTask(Task task) async {
+    final url = Uri.parse(
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/tasks');
+    try {
+      final response = await http.post(url,
+          body: json.encode({
+            'name': task.name,
+            'description': task.description,
+            'houseId': task.houseId,
+            'dueDate': task.dueDate!.toIso8601String(),
+            'points': task.points.toString(),
+          }));
+      task.id = json.decode(response.body)['name'];
+      int i = 0;
+      while (i < _toDoList.length) {
+        if (_toDoList[i].compareTo(task) == 1) {
+          break;
+        }
+        i++;
       }
-      i++;
+      _toDoList.insert(i, task);
+      notifyListeners();
+    } catch (error) {
+      print(error);
+      rethrow;
     }
-    _toDoList.insert(i, task);
-    notifyListeners();
   }
 
   List<Task> get getDoList {
@@ -70,9 +87,10 @@ class Tasks extends ChangeNotifier {
   void markAsDone(String taskId, String notes, String doneBy) {
     Task task =
         _toDoList.where((taskToFind) => taskToFind.id == taskId).elementAt(0);
+    task.completedDate = DateTime.now();
     task.notes = notes;
     task.doneBy = doneBy;
-    _doneList.add(task);
+    _doneList.insert(0, task);
     _toDoList.removeWhere((taskToFind) => taskToFind.id == taskId);
     notifyListeners();
   }

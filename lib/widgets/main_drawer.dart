@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../screens/tasks_completed_screen.dart';
+import '../screens/tasks_overview_screen.dart';
 
 import '../screens/add_task_screen.dart';
 
@@ -26,6 +28,21 @@ class MainDrawer extends StatelessWidget {
           ),
           ListTile(
               leading: const Icon(
+                Icons.assignment,
+                size: 26,
+              ),
+              title: const Text(
+                'ToDo List',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/');
+              }),
+          ListTile(
+              leading: const Icon(
                 Icons.add_task,
                 size: 26,
               ),
@@ -37,23 +54,25 @@ class MainDrawer extends StatelessWidget {
                 ),
               ),
               onTap: () {
+                //Navigator.pop(context);
                 Navigator.pushNamed(context, AddTaskScreen.routeName);
               }),
-          const ListTile(
-            leading: Icon(
-              Icons.filter,
+          ListTile(
+            leading: const Icon(
+              Icons.assignment_turned_in_outlined,
               size: 26,
             ),
-            title: Text(
-              'Filters',
+            title: const Text(
+              'Completed Tasks',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            // onTap: () {
-            //   Navigator.of(context).pushReplacementNamed('/filters');
-            // },
+            onTap: () {
+              Navigator.pushReplacementNamed(
+                  context, TasksCompletedScreen.routeName);
+            },
           ),
         ],
       ),

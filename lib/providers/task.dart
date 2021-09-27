@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 
 class Task extends ChangeNotifier implements Comparable {
-  final String? id;
+  String? id;
   final String name;
   final String description;
   final String houseId;
   final DateTime? dueDate;
+  DateTime? completedDate;
   final int points;
   String doneBy;
   String notes;
 
   Task(
-      {required this.id,
+      {this.id,
       required this.name,
       this.description = '',
       required this.houseId,
       required this.dueDate,
+      this.completedDate,
       this.doneBy = '',
       this.points = 10,
       this.notes = ''});

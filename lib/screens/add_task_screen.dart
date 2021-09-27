@@ -21,6 +21,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   var validDate = true;
 
+  var _isLoading = false;
+
   DateTime? _selectedDate;
 
   var _initValues = {
@@ -32,7 +34,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   var taskToAdd = Task(
     houseId: '1', //change to logged houseID
-    id: DateTime.now().toString(),
     name: '',
     dueDate: null,
     points: 0,
@@ -45,7 +46,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     super.dispose();
   }
 
-  void _saveForm() {
+  Future<void> _saveForm() async {
     final isValid = _form.currentState!.validate();
     if (_selectedDate == null) {
       setState(() {
@@ -57,8 +58,32 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       return;
     }
     _form.currentState!.save();
-    Provider.of<Tasks>(context, listen: false).addTask(taskToAdd);
-    Navigator.of(context).pop();
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await Provider.of<Tasks>(context, listen: false).addTask(taskToAdd);
+      Navigator.of(context).pop();
+      Navigator.of(context).pushReplacementNamed('/');
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (error) {
+      showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+                title: Text('An error occurred!'),
+                content: Text('Something went wrong.'),
+                actions: [
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pushReplacementNamed('/');
+                      },
+                      child: Text('OK'))
+                ],
+              ));
+    }
   }
 
   void _presentDatePicker() {
@@ -118,122 +143,129 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _form,
-          child: ListView(children: [
-            TextFormField(
-              initialValue: _initValues['name'],
-              decoration: const InputDecoration(labelText: 'name'),
-              textInputAction: TextInputAction.next,
-              onFieldSubmitted: (_) {
-                FocusScope.of(context).requestFocus(_descriptionFocusNode);
-              },
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please provide a value.';
-                }
-                return null;
-              },
-              onSaved: (value) {
-                taskToAdd = Task(
-                  houseId: taskToAdd.houseId, //change to logged houseID
-                  id: taskToAdd.id,
-                  name: value!,
-                  dueDate: taskToAdd.dueDate,
-                  points: taskToAdd.points,
-                  description: taskToAdd.description,
-                );
-              },
-            ),
-            TextFormField(
-              focusNode: _descriptionFocusNode,
-              initialValue: _initValues['description (optional)'],
-              decoration:
-                  const InputDecoration(labelText: 'description (optional)'),
-              textInputAction: TextInputAction.next,
-              onFieldSubmitted: (_) {
-                FocusScope.of(context).requestFocus(_pointsFocusNode);
-              },
-              onSaved: (value) {
-                if (value == null) return;
-                taskToAdd = Task(
-                  houseId: taskToAdd.houseId, //change to logged houseID
-                  id: taskToAdd.id,
-                  name: taskToAdd.name,
-                  dueDate: taskToAdd.dueDate,
-                  points: taskToAdd.points,
-                  description: value,
-                );
-              },
-            ),
-            TextFormField(
-              initialValue: _initValues['points'],
-              decoration: const InputDecoration(labelText: 'Points'),
-              textInputAction: TextInputAction.next,
-              keyboardType: TextInputType.number,
-              focusNode: _pointsFocusNode,
-              onFieldSubmitted: (_) {
-                FocusScope.of(context).requestFocus(_descriptionFocusNode);
-              },
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter a price.';
-                }
-                if (double.tryParse(value) == null) {
-                  return 'Please enter a valid number.';
-                }
-                if (double.parse(value) <= 0 || double.parse(value) > 100) {
-                  return 'Please enter a number between 1-100.';
-                }
-                return null;
-              },
-              onSaved: (value) {
-                taskToAdd = Task(
-                  houseId: taskToAdd.houseId, //change to logged houseID
-                  id: taskToAdd.id,
-                  name: taskToAdd.name,
-                  dueDate: taskToAdd.dueDate,
-                  points: int.parse(value!),
-                  description: taskToAdd.description,
-                );
-              },
-            ),
-            SizedBox(
-              height: 70,
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      _selectedDate == null
-                          ? validDate
-                              ? 'Choose date'
-                              : 'Please choose a valid date'
-                          : 'Picked Date: ${DateFormat.yMd().add_jm().format(_selectedDate!)}',
-                      style: TextStyle(
-                          color: validDate ? Colors.black : Colors.red),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _form,
+                child: ListView(children: [
+                  TextFormField(
+                    initialValue: _initValues['name'],
+                    decoration: const InputDecoration(labelText: 'name'),
+                    textInputAction: TextInputAction.next,
+                    onFieldSubmitted: (_) {
+                      FocusScope.of(context)
+                          .requestFocus(_descriptionFocusNode);
+                    },
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please provide a value.';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      taskToAdd = Task(
+                        houseId: taskToAdd.houseId, //change to logged houseID
+                        id: taskToAdd.id,
+                        name: value!,
+                        dueDate: taskToAdd.dueDate,
+                        points: taskToAdd.points,
+                        description: taskToAdd.description,
+                      );
+                    },
+                  ),
+                  TextFormField(
+                    focusNode: _descriptionFocusNode,
+                    initialValue: _initValues['description (optional)'],
+                    decoration: const InputDecoration(
+                        labelText: 'description (optional)'),
+                    textInputAction: TextInputAction.next,
+                    onFieldSubmitted: (_) {
+                      FocusScope.of(context).requestFocus(_pointsFocusNode);
+                    },
+                    onSaved: (value) {
+                      if (value == null) return;
+                      taskToAdd = Task(
+                        houseId: taskToAdd.houseId, //change to logged houseID
+                        id: taskToAdd.id,
+                        name: taskToAdd.name,
+                        dueDate: taskToAdd.dueDate,
+                        points: taskToAdd.points,
+                        description: value,
+                      );
+                    },
+                  ),
+                  TextFormField(
+                    initialValue: _initValues['points'],
+                    decoration: const InputDecoration(labelText: 'Points'),
+                    textInputAction: TextInputAction.next,
+                    keyboardType: TextInputType.number,
+                    focusNode: _pointsFocusNode,
+                    onFieldSubmitted: (_) {
+                      FocusScope.of(context)
+                          .requestFocus(_descriptionFocusNode);
+                    },
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter a price.';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Please enter a valid number.';
+                      }
+                      if (double.parse(value) <= 0 ||
+                          double.parse(value) > 100) {
+                        return 'Please enter a number between 1-100.';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      taskToAdd = Task(
+                        houseId: taskToAdd.houseId, //change to logged houseID
+                        id: taskToAdd.id,
+                        name: taskToAdd.name,
+                        dueDate: taskToAdd.dueDate,
+                        points: int.parse(value!),
+                        description: taskToAdd.description,
+                      );
+                    },
+                  ),
+                  SizedBox(
+                    height: 70,
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            _selectedDate == null
+                                ? validDate
+                                    ? 'Choose date'
+                                    : 'Please choose a valid date'
+                                : 'Picked Date: ${DateFormat.yMd().add_jm().format(_selectedDate!)}',
+                            style: TextStyle(
+                                color: validDate ? Colors.black : Colors.red),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            elevation: 10.0,
+                            shadowColor: Colors.black,
+                          ),
+                          child: const Text(
+                            'Choose Date',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          onPressed: _presentDatePicker,
+                        ),
+                      ],
                     ),
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      elevation: 10.0,
-                      shadowColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'Choose Date',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onPressed: _presentDatePicker,
-                  ),
-                ],
+                ]),
               ),
             ),
-          ]),
-        ),
-      ),
     );
   }
 }
