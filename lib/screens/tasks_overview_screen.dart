@@ -51,7 +51,7 @@ class _TasksOverviewScreenState extends State<TasksOverviewScreen> {
             child: ListView.builder(
                 itemCount: toDoList.length,
                 itemBuilder: (ctx, i) => TaskView(toDoList[i])),
-          )
+          ),
         ],
       ),
     );

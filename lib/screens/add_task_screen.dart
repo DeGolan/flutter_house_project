@@ -148,6 +148,27 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               },
             ),
             TextFormField(
+              focusNode: _descriptionFocusNode,
+              initialValue: _initValues['description (optional)'],
+              decoration:
+                  const InputDecoration(labelText: 'description (optional)'),
+              textInputAction: TextInputAction.next,
+              onFieldSubmitted: (_) {
+                FocusScope.of(context).requestFocus(_pointsFocusNode);
+              },
+              onSaved: (value) {
+                if (value == null) return;
+                taskToAdd = Task(
+                  houseId: taskToAdd.houseId, //change to logged houseID
+                  id: taskToAdd.id,
+                  name: taskToAdd.name,
+                  dueDate: taskToAdd.dueDate,
+                  points: taskToAdd.points,
+                  description: value,
+                );
+              },
+            ),
+            TextFormField(
               initialValue: _initValues['points'],
               decoration: const InputDecoration(labelText: 'Points'),
               textInputAction: TextInputAction.next,

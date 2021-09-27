@@ -36,15 +36,31 @@ class Tasks extends ChangeNotifier {
   ];
 
   List<Task> _doneList = [];
-  Tasks();
+
+  Tasks() {
+    sortTasks();
+  }
 
   void addTask(Task task) {
-    _toDoList.add(task);
+    int i = 0;
+    while (i < _toDoList.length) {
+      if (_toDoList[i].compareTo(task) == 1) {
+        break;
+      }
+      i++;
+    }
+    _toDoList.insert(i, task);
     notifyListeners();
   }
 
   List<Task> get getDoList {
     return [..._toDoList];
+  }
+
+  void sortTasks() {
+    _toDoList.sort();
+
+    notifyListeners();
   }
 
   List<Task> get getDoneList {
