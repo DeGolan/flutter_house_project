@@ -14,7 +14,7 @@ class CompletedTaskView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      margin: EdgeInsets.all(4),
+      margin: const EdgeInsets.all(4),
       child: ListTile(
           onTap: () {
             showDialog(

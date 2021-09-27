@@ -4,7 +4,8 @@ import 'package:intl/intl.dart';
 
 class TaskDetails extends StatelessWidget {
   final Task task;
-  TaskDetails(this.task);
+  // ignore: use_key_in_widget_constructors
+  const TaskDetails(this.task);
   @override
   Widget build(BuildContext context) {
     return Dialog(

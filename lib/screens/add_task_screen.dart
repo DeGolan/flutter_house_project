@@ -8,6 +8,8 @@ import '../providers/task.dart';
 class AddTaskScreen extends StatefulWidget {
   static const routeName = '/add-task-screen';
 
+  const AddTaskScreen({Key? key}) : super(key: key);
+
   @override
   State<AddTaskScreen> createState() => _AddTaskScreenState();
 }
@@ -25,7 +27,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   DateTime? _selectedDate;
 
-  var _initValues = {
+  final _initValues = {
     'name': '',
     'description': '',
     'points': '',
@@ -40,6 +42,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     description: '',
   );
 
+  @override
   void dispose() {
     _descriptionFocusNode.dispose();
     _pointsFocusNode.dispose();
@@ -69,18 +72,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         _isLoading = false;
       });
     } catch (error) {
-      showDialog(
+      await showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-                title: Text('An error occurred!'),
-                content: Text('Something went wrong.'),
+                title: const Text('An error occurred!'),
+                content: const Text('Something went wrong.'),
                 actions: [
                   ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                         Navigator.of(context).pushReplacementNamed('/');
                       },
-                      child: Text('OK'))
+                      child: const Text('OK'))
                 ],
               ));
     }
@@ -91,7 +94,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 366)),
+      lastDate: DateTime.now().add(const Duration(days: 366)),
     ).then((pickedDate) {
       if (pickedDate == null) {
         return;
@@ -144,7 +147,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         ],
       ),
       body: _isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : Padding(

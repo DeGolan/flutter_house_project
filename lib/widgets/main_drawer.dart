@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../screens/tasks_completed_screen.dart';
-import '../screens/tasks_overview_screen.dart';
 
 import '../screens/add_task_screen.dart';
 
 class MainDrawer extends StatelessWidget {
+  const MainDrawer({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -13,7 +14,7 @@ class MainDrawer extends StatelessWidget {
           Container(
             height: 120,
             width: double.infinity,
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             alignment: Alignment.centerLeft,
             child: const Text(
               'House Project',

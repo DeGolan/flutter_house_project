@@ -7,6 +7,8 @@ class TaskDetailScreen extends StatelessWidget {
   static const routeName = '/task-detail-screen';
   final notesController = TextEditingController();
 
+  TaskDetailScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final tasks = Provider.of<Tasks>(context, listen: false);
@@ -22,19 +24,20 @@ class TaskDetailScreen extends StatelessWidget {
           Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
-                decoration: InputDecoration(labelText: 'Notes'),
+                decoration: const InputDecoration(labelText: 'Notes'),
                 controller: notesController,
                 keyboardType: TextInputType.multiline,
                 maxLines: 4,
               )),
           ElevatedButton(
               onPressed: () {
+                // ignore: avoid_print
                 print(notesController.text);
                 tasks.markAsDone(
                     id, notesController.text, 'aviv'); // change to logged user
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'Submit',
               ))
         ],

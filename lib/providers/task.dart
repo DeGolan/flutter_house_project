@@ -19,7 +19,7 @@ class Task extends ChangeNotifier implements Comparable {
       required this.dueDate,
       this.completedDate,
       this.doneBy = '',
-      this.points = 10,
+      required this.points,
       this.notes = ''});
 
   @override

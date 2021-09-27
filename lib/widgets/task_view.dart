@@ -13,7 +13,7 @@ class TaskView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      margin: EdgeInsets.all(4),
+      margin: const EdgeInsets.all(4),
       child: ListTile(
         onTap: () {
           Navigator.of(context)
@@ -37,9 +37,9 @@ class TaskView extends StatelessWidget {
           ),
         ),
         trailing: Padding(
-          padding: EdgeInsets.only(right: 20),
+          padding: const EdgeInsets.only(right: 20),
           child: Container(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             // ignore: prefer_const_constructors
             decoration:
                 // ignore: prefer_const_constructors
@@ -48,7 +48,7 @@ class TaskView extends StatelessWidget {
 
             child: Text(
               '${task.points}',
-              style: TextStyle(fontSize: 30),
+              style: const TextStyle(fontSize: 30),
             ),
           ),
         ),
