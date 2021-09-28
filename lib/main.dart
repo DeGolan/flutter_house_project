@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
 
 import './screens/add_task_screen.dart';
 import './providers/tasks.dart';
-import '../screens/tasks_overview_screen.dart';
+import './providers/auth.dart';
 import '../screens/task_detail_screen.dart';
 import '../screens/tasks_completed_screen.dart';
+import '../screens/auth_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,10 +15,13 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (ctx) => Tasks(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: Tasks()),
+        ChangeNotifierProvider.value(value: Auth()),
+      ],
       child: MaterialApp(
-        home: const TasksOverviewScreen(),
+        home: const AuthScreen(),
         routes: {
           TaskDetailScreen.routeName: (ctx) => TaskDetailScreen(),
           AddTaskScreen.routeName: (ctx) => const AddTaskScreen(),
