@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../screens/tasks_completed_screen.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/auth.dart';
+import '../screens/tasks_completed_screen.dart';
 import '../screens/add_task_screen.dart';
 
 class MainDrawer extends StatelessWidget {
@@ -73,6 +75,23 @@ class MainDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushReplacementNamed(
                   context, TasksCompletedScreen.routeName);
+            },
+          ),
+          ListTile(
+            leading: const Icon(
+              Icons.exit_to_app,
+              size: 26,
+            ),
+            title: const Text(
+              'Logout',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: () {
+              Navigator.of(context).pop();
+              Provider.of<Auth>(context, listen: false).logout();
             },
           ),
         ],

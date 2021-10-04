@@ -5,6 +5,10 @@ import 'dart:convert';
 import './task.dart';
 
 class Tasks extends ChangeNotifier {
+  final String? _authToken;
+
+  final String? _userId;
+
   List<Task> _toDoList = [
     // Task(
     //     id: 'id1',
@@ -38,13 +42,25 @@ class Tasks extends ChangeNotifier {
 
   List<Task> _doneList = [];
 
-  Tasks() {
+  Tasks(this._authToken, this._toDoList, this._doneList, this._userId) {
     sortTasks();
+  }
+
+  List<Task> get getDoList {
+    return [..._toDoList];
+  }
+
+  List<Task> get getDoneList {
+    return [..._doneList];
+  }
+
+  String? get userId {
+    return _userId;
   }
 
   Future<void> fetchAndSetToDoList() async {
     final url = Uri.parse(
-        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/tasks/to-do-list.json');
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/$userId/tasks/to-do-list.json?auth=$_authToken');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>?;
@@ -79,7 +95,7 @@ class Tasks extends ChangeNotifier {
 
   Future<void> fetchAndSetDoneList() async {
     final url = Uri.parse(
-        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/tasks/done-list.json');
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/$userId/tasks/done-list.json?auth=$_authToken');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>?;
@@ -110,7 +126,7 @@ class Tasks extends ChangeNotifier {
 
   Future<void> addTask(Task task) async {
     final url = Uri.parse(
-        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/tasks/to-do-list.json');
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/$userId/tasks/to-do-list.json?auth=$_authToken');
     try {
       final response = await http.post(url,
           body: json.encode({
@@ -137,22 +153,14 @@ class Tasks extends ChangeNotifier {
     }
   }
 
-  List<Task> get getDoList {
-    return [..._toDoList];
-  }
-
   void sortTasks() {
     _toDoList.sort();
     notifyListeners();
   }
 
-  List<Task> get getDoneList {
-    return [..._doneList];
-  }
-
   Future<void> markAsDone(String taskId, String notes, String doneBy) async {
     final url = Uri.parse(
-        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/tasks/to-do-list/$taskId.json');
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/$userId/tasks/to-do-list/$taskId.json?auth=$_authToken');
     try {
       //getting the currnet task from to do list in firebase
       final response = await http.get(url);
@@ -171,7 +179,7 @@ class Tasks extends ChangeNotifier {
             completedDate: DateTime.now());
 
         final urlDoneList = Uri.parse(
-            'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/tasks/done-list.json');
+            'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/$userId/tasks/done-list.json?auth=$_authToken');
         try {
           //putting the done list in firebase
           await http.post(urlDoneList,

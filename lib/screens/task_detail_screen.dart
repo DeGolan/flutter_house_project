@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/auth.dart';
 import '../providers/tasks.dart';
 
 class TaskDetailScreen extends StatelessWidget {
@@ -11,6 +12,7 @@ class TaskDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userName = Provider.of<Auth>(context, listen: false).userName;
     final tasks = Provider.of<Tasks>(context, listen: false);
     final id = ModalRoute.of(context)!.settings.arguments as String;
     final task = tasks.getDoList.firstWhere(
@@ -33,8 +35,7 @@ class TaskDetailScreen extends StatelessWidget {
               onPressed: () {
                 // ignore: avoid_print
                 print(notesController.text);
-                tasks.markAsDone(
-                    id, notesController.text, 'aviv'); // change to logged user
+                tasks.markAsDone(id, notesController.text, userName!);
                 Navigator.of(context).pop();
               },
               child: const Text(

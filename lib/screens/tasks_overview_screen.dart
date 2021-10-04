@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:house_project/providers/auth.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/main_drawer.dart';
@@ -51,7 +52,7 @@ class _TasksOverviewScreenState extends State<TasksOverviewScreen> {
   @override
   Widget build(BuildContext context) {
     // ignore: prefer_const_declarations
-    final userName = 'aviv'; //todo get logged user name.
+    final userName = Provider.of<Auth>(context, listen: false).userName;
     final tasks = Provider.of<Tasks>(context);
     final toDoList = tasks.getDoList;
     return Scaffold(
@@ -79,9 +80,10 @@ class _TasksOverviewScreenState extends State<TasksOverviewScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text('Total Score: ${tasks.getTotalScore(userName)}'),
+                          Text(
+                              'Total Score: ${tasks.getTotalScore(userName!)}'),
                           // ignore: prefer_const_constructors
-                          Text('Hey Aviv'),
+                          Text('Hey $userName'),
                         ],
                       )),
                   Expanded(
