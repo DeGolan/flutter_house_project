@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:house_project/providers/auth_house.dart';
 import 'package:provider/provider.dart';
 
-import './screens/add_task_screen.dart';
 import './providers/tasks.dart';
 import './providers/auth.dart';
 import '../screens/task_detail_screen.dart';
@@ -10,6 +9,8 @@ import '../screens/tasks_completed_screen.dart';
 import '../screens/auth_screen.dart';
 import '../screens/splash_screen.dart';
 import '../screens/tasks_overview_screen.dart';
+import '../screens/auth_house_screen.dart';
+import './screens/add_task_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: Auth()),
+        ChangeNotifierProvider.value(value: AuthHouse()),
         ChangeNotifierProxyProvider<Auth, Tasks>(
           update: (ctx, auth, previousTasks) => Tasks(
               auth.token,
@@ -32,7 +34,9 @@ class MyApp extends StatelessWidget {
       child: Consumer<Auth>(
         builder: (ctx, auth, _) => MaterialApp(
           home: auth.isAuth
-              ? const TasksOverviewScreen()
+              ? auth.isHouseAuth
+                  ? const TasksOverviewScreen()
+                  : const AuthHouseScreen()
               : FutureBuilder(
                   future: auth.tryAutoLogin(),
                   builder: (ctx, authResultSnapshot) =>
@@ -41,6 +45,7 @@ class MyApp extends StatelessWidget {
                           ? const SplashScreen()
                           : const AuthScreen()),
           routes: {
+            AuthHouseScreen.routeName: (ctx) => const AuthHouseScreen(),
             TaskDetailScreen.routeName: (ctx) => TaskDetailScreen(),
             AddTaskScreen.routeName: (ctx) => const AddTaskScreen(),
             TasksCompletedScreen.routeName: (ctx) =>
