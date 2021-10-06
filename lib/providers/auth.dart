@@ -14,9 +14,19 @@ class Auth with ChangeNotifier {
   String? _userId;
   String? _userName;
   Timer? _authTimer;
+  bool _houseExists = false;
+  bool _userHasHouse = false;
+
+  bool get houseExists {
+    return _houseExists;
+  }
 
   bool get isAuth {
-    return token != null;
+    return token != null; //&& (_houseChecked || _userHasHouse)
+  }
+
+  bool get isHouseAuth {
+    return (_houseExists || _userHasHouse);
   }
 
   String? get token {
@@ -34,6 +44,48 @@ class Auth with ChangeNotifier {
 
   String? get userName {
     return _userName;
+  }
+
+  Future<void> checkIfHouseExist(String houseName) async {
+    final url = Uri.parse(
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/houses/$houseName.json?auth=$_token');
+    try {
+      final responseUniqueCheck = await http.get(url);
+      print(houseName);
+      print(json.decode(responseUniqueCheck.body));
+      if (json.decode(responseUniqueCheck.body) != null) {
+        _houseExists = true;
+      } else
+        _houseExists = false;
+    } catch (error) {} //error handling
+  }
+
+  Future<void> houseSignUp(String houseName) async {
+    final userUrl = Uri.parse(
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/users/$_userId.json?auth=$_token');
+    final url = Uri.parse(
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/houses/$houseName/users.json?auth=$_token');
+    try {
+      final response = await http.post(
+        url,
+        body: json.encode(
+          {
+            'userName': _userName,
+            'userId': _userId,
+          },
+        ),
+      );
+      final responseUsers = await http.post(
+        userUrl,
+        body: json.encode(
+          {
+            'houseName': houseName,
+            'email': _userName,
+          },
+        ),
+      );
+      notifyListeners();
+    } catch (error) {} //error handling
   }
 
   Future<void> _authenticate(
@@ -75,7 +127,10 @@ class Auth with ChangeNotifier {
     }
   }
 
-  Future<void> signup(String? email, String? password) async {
+  Future<void> signup(
+    String? email,
+    String? password,
+  ) async {
     return _authenticate(email, password, 'signUp');
   }
 
@@ -84,6 +139,9 @@ class Auth with ChangeNotifier {
   }
 
   Future<bool> tryAutoLogin() async {
+    if (!_houseExists) {
+      return false;
+    }
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('userData')) {
       return false;
@@ -109,6 +167,8 @@ class Auth with ChangeNotifier {
     _token = null;
     _userId = null;
     _expiryDate = null;
+    _houseExists = false;
+    _userHasHouse = false;
     if (_authTimer != null) {
       _authTimer!.cancel();
       _authTimer = null;
@@ -125,5 +185,17 @@ class Auth with ChangeNotifier {
     // ignore: unused_local_variable
     final timeToExpiry = _expiryDate!.difference(DateTime.now()).inSeconds;
     _authTimer = Timer(Duration(seconds: timeToExpiry), logout);
+  }
+
+  Future<void> checkIfHasHouse() async {
+    final url = Uri.parse(
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/users/$userId.json?auth=$_token');
+    try {
+      final responseUniqueCheck = await http.get(url);
+      if (json.decode(responseUniqueCheck.body) != null) {
+        _userHasHouse = true;
+      } else
+        _userHasHouse = false;
+    } catch (error) {} //error handling
   }
 }

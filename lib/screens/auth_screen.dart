@@ -1,8 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../screens/auth_house_screen.dart';
 import '../models/http_exeption.dart';
 import '../providers/auth.dart';
 
@@ -47,10 +46,7 @@ class AuthScreen extends StatelessWidget {
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 20.0),
                       padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 94.0),
-                      transform: Matrix4.rotationZ(-8 * pi / 180)
-                        ..translate(-10.0),
-                      // ..translate(-10.0),
+                          vertical: 8.0, horizontal: 50.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         color: Colors.deepOrange.shade900,
@@ -131,16 +127,19 @@ class _AuthCardState extends State<AuthCard> {
       _isLoading = true;
     });
     try {
+      final auth = Provider.of<Auth>(context, listen: false);
       if (_authMode == AuthMode.login) {
         // Log user in
-        await Provider.of<Auth>(context, listen: false)
-            .login(_authData['email'], _authData['password']);
+        await auth.login(_authData['email'], _authData['password']);
+        await auth.checkIfHasHouse();
       } else {
         // Sign user up
-        await Provider.of<Auth>(context, listen: false)
-            .signup(_authData['email'], _authData['password']);
+        auth.signup(_authData['email'], _authData['password']);
       }
     } on HttpExeption catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
       var errorMessage = 'Authenticate failed';
       if (error.toString().contains('EMAIL_EXISTS')) {
         errorMessage = 'This email address is already in use.';
@@ -158,9 +157,6 @@ class _AuthCardState extends State<AuthCard> {
       var errorMessage = 'Could not authenticate you.Please try again later';
       _showErrorDialog(errorMessage);
     }
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   void _switchAuthMode() {
@@ -184,9 +180,9 @@ class _AuthCardState extends State<AuthCard> {
       ),
       elevation: 8.0,
       child: Container(
-        height: _authMode == AuthMode.signup ? 320 : 260,
-        constraints:
-            BoxConstraints(minHeight: _authMode == AuthMode.signup ? 320 : 260),
+        height: _authMode == AuthMode.signup ? 1000 : 260,
+        constraints: BoxConstraints(
+            minHeight: _authMode == AuthMode.signup ? 1000 : 260),
         width: deviceSize.width * 0.75,
         padding: const EdgeInsets.all(16.0),
         child: Form(
