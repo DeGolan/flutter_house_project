@@ -127,21 +127,15 @@ class _AuthCardState extends State<AuthCard> {
       _isLoading = true;
     });
     try {
-      final auth = Provider.of<Auth>(context, listen: false);
+      final authHouse = Provider.of<AuthHouse>(context, listen: false);
       if (_authMode == AuthMode.login) {
-        await auth.checkIfHouseExist(houseName);
-        if (auth.houseExists) {
-          auth.houseSignUp(houseName);
-        } else {}
+        //login to house
+        await authHouse.checkIfHouseExist(houseName);
       } else {
-        // Sign user up
-        await auth.checkIfHouseExist(houseName);
-        if (!auth.houseExists) {
-          auth.houseSignUp(houseName);
-        } else {
-          //handle later
-        }
+        // Sign up new house
+        await authHouse.checkIfHouseDoesNotExists(houseName);
       }
+      await authHouse.houseSigninAndUp(houseName);
     } on HttpExeption catch (error) {
       var errorMessage = 'Authenticate failed';
       if (error.toString().contains('EMAIL_EXISTS')) {
@@ -154,11 +148,15 @@ class _AuthCardState extends State<AuthCard> {
         errorMessage = 'Could not find a user with that email.';
       } else if (error.toString().contains('INVALID_PASSWORD')) {
         errorMessage = 'Invalid password.';
+      } else if (error.toString().contains('HOUSE_DOES_NOT_EXISTS')) {
+        errorMessage = 'House does not exists.';
+      } else if (error.toString().contains('HOUSE_EXISTS')) {
+        errorMessage = 'House does not exists.';
       }
       _showErrorDialog(errorMessage);
     } catch (error) {
       var errorMessage = 'Could not authenticate you.Please try again later';
-      _showErrorDialog(errorMessage);
+      _showErrorDialog(error.toString());
     }
     setState(() {
       _isLoading = false;

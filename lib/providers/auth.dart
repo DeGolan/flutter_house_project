@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
+import 'package:house_project/providers/auth_house.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/http_exeption.dart';
@@ -22,7 +24,8 @@ class Auth with ChangeNotifier {
   }
 
   bool get isAuth {
-    return token != null; //&& (_houseChecked || _userHasHouse)
+    print('isAuth token: $token');
+    return token != null;
   }
 
   bool get isHouseAuth {
@@ -46,50 +49,8 @@ class Auth with ChangeNotifier {
     return _userName;
   }
 
-  Future<void> checkIfHouseExist(String houseName) async {
-    final url = Uri.parse(
-        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/houses/$houseName.json?auth=$_token');
-    try {
-      final responseUniqueCheck = await http.get(url);
-      print(houseName);
-      print(json.decode(responseUniqueCheck.body));
-      if (json.decode(responseUniqueCheck.body) != null) {
-        _houseExists = true;
-      } else
-        _houseExists = false;
-    } catch (error) {} //error handling
-  }
-
-  Future<void> houseSignUp(String houseName) async {
-    final userUrl = Uri.parse(
-        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/users/$_userId.json?auth=$_token');
-    final url = Uri.parse(
-        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/houses/$houseName/users.json?auth=$_token');
-    try {
-      final response = await http.post(
-        url,
-        body: json.encode(
-          {
-            'userName': _userName,
-            'userId': _userId,
-          },
-        ),
-      );
-      final responseUsers = await http.post(
-        userUrl,
-        body: json.encode(
-          {
-            'houseName': houseName,
-            'email': _userName,
-          },
-        ),
-      );
-      notifyListeners();
-    } catch (error) {} //error handling
-  }
-
-  Future<void> _authenticate(
-      String? email, String? password, String urlSegment) async {
+  Future<void> _authenticate(String? email, String? password, String urlSegment,
+      BuildContext context) async {
     final url = Uri.parse(
         'https://identitytoolkit.googleapis.com/v1/accounts:$urlSegment?key=AIzaSyDXhcnQKV98Ula-60S_tQxiOxvyaonC84o');
     try {
@@ -110,9 +71,11 @@ class Auth with ChangeNotifier {
       _userName = email;
       _token = responseData['idToken'];
       _userId = responseData['localId'];
+      Provider.of<AuthHouse>(context, listen: false)
+          .setUserFields(_token, _userId, _userName);
       _expiryDate = DateTime.now()
           .add(Duration(seconds: int.parse(responseData['expiresIn'])));
-      _autoLogout();
+      _autoLogout(context);
       notifyListeners();
       final prefs = await SharedPreferences.getInstance();
       final userData = json.encode({
@@ -128,20 +91,16 @@ class Auth with ChangeNotifier {
   }
 
   Future<void> signup(
-    String? email,
-    String? password,
-  ) async {
-    return _authenticate(email, password, 'signUp');
+      String? email, String? password, BuildContext context) async {
+    return _authenticate(email, password, 'signUp', context);
   }
 
-  Future<void> login(String? email, String? password) async {
-    return _authenticate(email, password, 'signInWithPassword');
+  Future<void> login(
+      String? email, String? password, BuildContext context) async {
+    return _authenticate(email, password, 'signInWithPassword', context);
   }
 
   Future<bool> tryAutoLogin() async {
-    if (!_houseExists) {
-      return false;
-    }
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('userData')) {
       return false;
@@ -153,14 +112,15 @@ class Auth with ChangeNotifier {
     if (expiryDate.isBefore(DateTime.now())) {
       return false;
     }
-    _token = extracedUserData['token'];
-    _userId = extracedUserData['userId'];
-    _userName = extracedUserData['userName'];
+    return false;
+    // _token = extracedUserData['token'];
+    // _userId = extracedUserData['userId'];
+    // _userName = extracedUserData['userName'];
 
-    _expiryDate = expiryDate;
-    notifyListeners();
-    _autoLogout();
-    return true;
+    // _expiryDate = expiryDate;
+    // notifyListeners();
+    // _autoLogout();
+    // return true;
   }
 
   Future<void> logout() async {
@@ -178,24 +138,13 @@ class Auth with ChangeNotifier {
     prefs.clear(); //or remove
   }
 
-  void _autoLogout() {
+  void _autoLogout(BuildContext context) {
     if (_authTimer != null) {
       _authTimer!.cancel();
     }
+
     // ignore: unused_local_variable
     final timeToExpiry = _expiryDate!.difference(DateTime.now()).inSeconds;
     _authTimer = Timer(Duration(seconds: timeToExpiry), logout);
-  }
-
-  Future<void> checkIfHasHouse() async {
-    final url = Uri.parse(
-        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/users/$userId.json?auth=$_token');
-    try {
-      final responseUniqueCheck = await http.get(url);
-      if (json.decode(responseUniqueCheck.body) != null) {
-        _userHasHouse = true;
-      } else
-        _userHasHouse = false;
-    } catch (error) {} //error handling
   }
 }

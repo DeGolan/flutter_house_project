@@ -31,10 +31,10 @@ class MyApp extends StatelessWidget {
           create: (ctx) => Tasks(null, [], [], null),
         ),
       ],
-      child: Consumer<Auth>(
-        builder: (ctx, auth, _) => MaterialApp(
+      child: Consumer2<Auth, AuthHouse>(
+        builder: (ctx, auth, authHouse, _) => MaterialApp(
           home: auth.isAuth
-              ? auth.isHouseAuth
+              ? authHouse.isAuth
                   ? const TasksOverviewScreen()
                   : const AuthHouseScreen()
               : FutureBuilder(
@@ -44,6 +44,17 @@ class MyApp extends StatelessWidget {
                               ConnectionState.waiting
                           ? const SplashScreen()
                           : const AuthScreen()),
+          //  auth.isAuth
+          //     ? authHouse.isAuth
+          //         ? const TasksOverviewScreen()
+          //         : const AuthHouseScreen()
+          //     : FutureBuilder(
+          //         future: auth.tryAutoLogin(),
+          //         builder: (ctx, authResultSnapshot) =>
+          //             authResultSnapshot.connectionState ==
+          //                     ConnectionState.waiting
+          //                 ? const SplashScreen()
+          //                 : const AuthScreen()),
           routes: {
             AuthHouseScreen.routeName: (ctx) => const AuthHouseScreen(),
             TaskDetailScreen.routeName: (ctx) => TaskDetailScreen(),

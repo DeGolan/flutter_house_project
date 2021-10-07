@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:house_project/providers/auth_house.dart';
 import 'package:provider/provider.dart';
 
 import '../screens/auth_house_screen.dart';
@@ -130,11 +131,10 @@ class _AuthCardState extends State<AuthCard> {
       final auth = Provider.of<Auth>(context, listen: false);
       if (_authMode == AuthMode.login) {
         // Log user in
-        await auth.login(_authData['email'], _authData['password']);
-        await auth.checkIfHasHouse();
+        await auth.login(_authData['email'], _authData['password'], context);
       } else {
         // Sign user up
-        auth.signup(_authData['email'], _authData['password']);
+        await auth.signup(_authData['email'], _authData['password'], context);
       }
     } on HttpExeption catch (error) {
       setState(() {
@@ -155,8 +155,11 @@ class _AuthCardState extends State<AuthCard> {
       _showErrorDialog(errorMessage);
     } catch (error) {
       var errorMessage = 'Could not authenticate you.Please try again later';
-      _showErrorDialog(errorMessage);
+      _showErrorDialog(error.toString());
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   void _switchAuthMode() {
