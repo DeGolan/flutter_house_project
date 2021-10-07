@@ -8,109 +8,122 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/http_exeption.dart';
 
 class AuthHouse with ChangeNotifier {
-  String? _houseId;
-
-  String? get houseId {
-    return _houseId;
-  }
+  String? _token;
+  String? _userId;
+  String? _userName;
+  String? _houseName = '';
 
   bool get isAuth {
-    return _houseId != null;
+    print('isAuthHouse HouseName: $_houseName ');
+    if (_houseName != '') {
+      print('isAuthHouse ifff: $_houseName ');
+      return true;
+    } else {
+      _userConnectedToHouse;
+      return false;
+    }
   }
 
-  // Future<void> _authenticate(
-  //     String? email, String? password, String urlSegment) async {
-  //   final url = Uri.parse(
-  //       'https://identitytoolkit.googleapis.com/v1/accounts:$urlSegment?key=AIzaSyDXhcnQKV98Ula-60S_tQxiOxvyaonC84o');
-  //   try {
-  //     final response = await http.post(
-  //       url,
-  //       body: json.encode(
-  //         {
-  //           'email': email,
-  //           'password': password,
-  //           'returnSecureToken': true,
-  //         },
-  //       ),
-  //     );
-  //     final responseData = json.decode(response.body);
-  //     if (responseData['error'] != null) {
-  //       throw HttpExeption(responseData['error']['message']);
-  //     }
-  //     _userName = email;
-  //     _token = responseData['idToken'];
-  //     _userId = responseData['localId'];
-  //     _expiryDate = DateTime.now()
-  //         .add(Duration(seconds: int.parse(responseData['expiresIn'])));
-  //     _autoLogout();
-  //     notifyListeners();
-  //     final prefs = await SharedPreferences.getInstance();
-  //     final userData = json.encode({
-  //       'token': _token,
-  //       'userId': _userId,
-  //       'expiryDate': _expiryDate!.toIso8601String(),
-  //       'userName': _userName
-  //     });
-  //     prefs.setString('userData', userData);
-  //   } catch (error) {
-  //     rethrow;
-  //   }
-  // }
-
-  Future<void> signup(String? houseName, String authToken) async {
+  Future<void> _userConnectedToHouse() async {
+    print('_userConnectedToHouse:before userId: $_userId');
     final url = Uri.parse(
-        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/houses/$houseName.json?auth=$authToken');
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/users/$_userId.json?auth=$_token');
     try {
-      final responseUniqueCheck = await http.get(url);
-      print(json.decode(responseUniqueCheck.body));
-    } catch (error) {}
+      final response = await http.get(url);
+      final responseData = json.decode(response.body);
+      print('_userConnectedToHouse: userId: $_userId');
+      print('_userConnectedToHouse: response: $responseData');
+      if (responseData != null) {
+        _houseName = '5';
+        notifyListeners();
+      }
+    } catch (error) {
+      rethrow;
+    }
   }
 
-//   Future<void> login(String? email, String? password) async {
-//     return _authenticate(email, password, 'signInWithPassword');
-//   }
+  String? get token {
+    return _token;
+  }
 
-//   Future<bool> tryAutoLogin() async {
-//     final prefs = await SharedPreferences.getInstance();
-//     if (!prefs.containsKey('userData')) {
-//       return false;
-//     }
-//     final extracedUserData = json.decode(prefs.getString('userData')!);
+  String? get houseName {
+    return _houseName;
+  }
 
-//     final expiryDate = DateTime.parse(extracedUserData['expiryDate']);
+  void setUserFields(String? token, String? userId, String? userName) {
+    _token = token;
+    _userId = userId;
+    _userName = userName;
+    notifyListeners();
+  }
 
-//     if (expiryDate.isBefore(DateTime.now())) {
-//       return false;
-//     }
-//     _token = extracedUserData['token'];
-//     _userId = extracedUserData['userId'];
-//     _userName = extracedUserData['userName'];
+  Future<void> houseSigninAndUp(String houseName) async {
+    final userUrl = Uri.parse(
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/users/$_userId.json?auth=$_token');
+    final url = Uri.parse(
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/houses/$houseName/users.json?auth=$_token');
+    try {
+      //posting the user in the house folder
+      final response = await http.post(
+        url,
+        body: json.encode(
+          {
+            'userName': _userName,
+            'userId': _userId,
+          },
+        ),
+      );
+      //posting the house in the user folder
+      final responseUsers = await http.post(
+        userUrl,
+        body: json.encode(
+          {
+            'houseName': houseName,
+            'email': _userName,
+          },
+        ),
+      );
+      _houseName = houseName;
+      notifyListeners();
+    } catch (error) {
+      //error handling
+      rethrow;
+    }
+  }
 
-//     _expiryDate = expiryDate;
-//     notifyListeners();
-//     _autoLogout();
-//     return true;
-//   }
+  //check if the providen houseName exists in the db
+  Future<void> checkIfHouseExist(String houseName) async {
+    final url = Uri.parse(
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/houses/$houseName.json?auth=$_token');
+    try {
+      final response = await http.get(url);
+      final responseData = json.decode(response.body);
+      print('_checkIfHouseExist: houseName: $houseName');
+      print('_checkIfHouseExist: response: $responseData');
 
-//   Future<void> logout() async {
-//     _token = null;
-//     _userId = null;
-//     _expiryDate = null;
-//     if (_authTimer != null) {
-//       _authTimer!.cancel();
-//       _authTimer = null;
-//     }
-//     notifyListeners();
-//     final prefs = await SharedPreferences.getInstance();
-//     prefs.clear(); //or remove
-//   }
+      if (responseData == null) {
+        throw HttpExeption('HOUSE_DOES_NOT_EXISTS');
+      }
+    } catch (error) {
+      rethrow;
+    } //error handling
+  }
 
-//   void _autoLogout() {
-//     if (_authTimer != null) {
-//       _authTimer!.cancel();
-//     }
-//     // ignore: unused_local_variable
-//     final timeToExpiry = _expiryDate!.difference(DateTime.now()).inSeconds;
-//     _authTimer = Timer(Duration(seconds: timeToExpiry), logout);
-//   }
+  //check if the providen houseName exists in the db
+  Future<void> checkIfHouseDoesNotExists(String houseName) async {
+    final url = Uri.parse(
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/houses/$houseName.json?auth=$_token');
+    try {
+      final response = await http.get(url);
+      final responseData = json.decode(response.body);
+      print('_checkIfHouseDoesNotExist: houseName: $houseName');
+      print('_checkIfHouseDoesNotExist: response: $responseData');
+
+      if (responseData != null) {
+        throw HttpExeption('HOUSE_EXISTS');
+      }
+    } catch (error) {
+      rethrow;
+    } //error handling
+  }
 }
