@@ -136,6 +136,7 @@ class _AuthCardState extends State<AuthCard> {
         // Sign user up
         await auth.signup(_authData['email'], _authData['password'], context);
       }
+      Provider.of<AuthHouse>(context, listen: false).resetHouseName();
     } on HttpExeption catch (error) {
       setState(() {
         _isLoading = false;

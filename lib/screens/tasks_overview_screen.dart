@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:house_project/providers/auth.dart';
+import 'package:house_project/providers/auth_house.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/main_drawer.dart';
@@ -54,6 +55,8 @@ class _TasksOverviewScreenState extends State<TasksOverviewScreen> {
     // ignore: prefer_const_declarations
     final userName = Provider.of<Auth>(context, listen: false).userName;
     final tasks = Provider.of<Tasks>(context);
+    final authHouse = Provider.of<AuthHouse>(context);
+    tasks.setHouseId(authHouse.houseName!);
     final toDoList = tasks.getDoList;
     return Scaffold(
       drawer: const MainDrawer(),

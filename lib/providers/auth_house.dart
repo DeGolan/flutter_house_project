@@ -12,14 +12,16 @@ class AuthHouse with ChangeNotifier {
   String? _userId;
   String? _userName;
   String? _houseName = '';
+  bool loading = true;
 
   bool get isAuth {
     print('isAuthHouse HouseName: $_houseName ');
     if (_houseName != '') {
       print('isAuthHouse ifff: $_houseName ');
+
       return true;
     } else {
-      _userConnectedToHouse;
+      _userConnectedToHouse();
       return false;
     }
   }
@@ -30,15 +32,18 @@ class AuthHouse with ChangeNotifier {
         'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/users/$_userId.json?auth=$_token');
     try {
       final response = await http.get(url);
-      final responseData = json.decode(response.body);
-      print('_userConnectedToHouse: userId: $_userId');
-      print('_userConnectedToHouse: response: $responseData');
+      final responseData = json.decode(response.body) as Map<String, dynamic>?;
+      print('_userConnectedToHouse raw response data: $responseData');
+
       if (responseData != null) {
-        _houseName = '5';
+        responseData.forEach((key, value) {
+          _houseName = value['houseName'];
+          print(value['houseName']);
+        });
         notifyListeners();
       }
     } catch (error) {
-      rethrow;
+      print(error);
     }
   }
 
@@ -61,7 +66,7 @@ class AuthHouse with ChangeNotifier {
     final userUrl = Uri.parse(
         'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/users/$_userId.json?auth=$_token');
     final url = Uri.parse(
-        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/houses/$houseName/users.json?auth=$_token');
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/houses/$houseName/users/$_userId.json?auth=$_token');
     try {
       //posting the user in the house folder
       final response = await http.post(
@@ -125,5 +130,10 @@ class AuthHouse with ChangeNotifier {
     } catch (error) {
       rethrow;
     } //error handling
+  }
+
+  void resetHouseName() {
+    _houseName = '';
+    notifyListeners();
   }
 }
