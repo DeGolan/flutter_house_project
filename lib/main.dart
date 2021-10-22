@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:house_project/providers/auth_house.dart';
+
 import 'package:provider/provider.dart';
 
+import './providers/auth_house.dart';
 import './providers/tasks.dart';
 import './providers/auth.dart';
 import '../screens/task_detail_screen.dart';
@@ -11,6 +12,7 @@ import '../screens/splash_screen.dart';
 import '../screens/tasks_overview_screen.dart';
 import '../screens/auth_house_screen.dart';
 import './screens/add_task_screen.dart';
+import './screens/scoreboard_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -22,12 +24,14 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: Auth()),
         ChangeNotifierProvider.value(value: AuthHouse()),
-        ChangeNotifierProxyProvider<Auth, Tasks>(
-          update: (ctx, auth, previousTasks) => Tasks(
-              auth.token,
-              previousTasks == null ? [] : previousTasks.getDoList,
-              previousTasks == null ? [] : previousTasks.getDoneList,
-              auth.userId),
+        ChangeNotifierProxyProvider2<Auth, AuthHouse, Tasks>(
+          update: (ctx, auth, authHouse, previousTasks) =>
+              // Tasks(
+              //     auth.token,
+              //     previousTasks == null ? [] : previousTasks.getDoList,
+              //     previousTasks == null ? [] : previousTasks.getDoneList,
+              //     auth.userId),
+              Tasks(auth.token, [], [], null),
           create: (ctx) => Tasks(null, [], [], null),
         ),
       ],
@@ -61,6 +65,7 @@ class MyApp extends StatelessWidget {
             AddTaskScreen.routeName: (ctx) => const AddTaskScreen(),
             TasksCompletedScreen.routeName: (ctx) =>
                 const TasksCompletedScreen(),
+            ScoreBoard.routeName: (ctx) => ScoreBoard(),
           },
         ),
       ),

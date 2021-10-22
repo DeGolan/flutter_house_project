@@ -17,32 +17,22 @@ class TasksOverviewScreen extends StatefulWidget {
 }
 
 class _TasksOverviewScreenState extends State<TasksOverviewScreen> {
-  var _isInit = true;
+  var _isInit = 0;
   var _isLoading = false;
 
   @override
-  void didChangeDependencies() {
-    if (_isInit) {
+  void didChangeDependencies() async {
+    if (_isInit < 2) {
       setState(() {
         _isLoading = true;
       });
-      Provider.of<Tasks>(context).fetchAndSetToDoList().then((_) {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-      //Refreshing done list alson to get score,
-      //need to find a better way to get score
+      await Provider.of<Tasks>(context, listen: false).fetchAndSetToDoList();
+      await Provider.of<Tasks>(context, listen: false).fetchAndSetDoneList();
       setState(() {
-        _isLoading = true;
-      });
-      Provider.of<Tasks>(context).fetchAndSetDoneList().then((_) {
-        setState(() {
-          _isLoading = false;
-        });
+        _isLoading = false;
       });
     }
-    _isInit = false;
+    _isInit++;
     super.didChangeDependencies();
   }
 

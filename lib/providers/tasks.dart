@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:house_project/screens/scoreboard_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -12,6 +13,8 @@ class Tasks extends ChangeNotifier {
   String get houseId {
     return _houseId;
   }
+
+  Map<String, int> _scoreboard = {};
 
   List<Task> _toDoList = [
     // Task(
@@ -63,6 +66,32 @@ class Tasks extends ChangeNotifier {
 
   String? get userId {
     return _userId;
+  }
+
+  Map<String, int> get scoreboard {
+    return _scoreboard;
+  }
+
+  Future<void> setScoreBoard() async {
+    final url = Uri.parse(
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/houses/$_houseId/tasks/done-list.json?auth=$_authToken');
+
+    try {
+      final response = await http.get(url);
+      final extractedData = json.decode(response.body) as Map<String, dynamic>?;
+      final Map<String, int> score = {};
+      if (extractedData != null) {
+        extractedData.forEach((taskId, taskData) {
+          score.update(taskData['doneBy'],
+              (currPoints) => currPoints + int.parse(taskData['points']),
+              ifAbsent: () => int.parse(taskData['points']));
+        });
+      }
+      _scoreboard = score;
+      notifyListeners();
+    } catch (error) {
+      rethrow;
+    }
   }
 
   Future<void> fetchAndSetToDoList() async {

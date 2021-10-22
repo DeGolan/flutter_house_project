@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth.dart';
 import '../screens/tasks_completed_screen.dart';
 import '../screens/add_task_screen.dart';
+import '../screens/scoreboard_screen.dart';
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer({Key? key}) : super(key: key);
@@ -75,6 +76,22 @@ class MainDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushReplacementNamed(
                   context, TasksCompletedScreen.routeName);
+            },
+          ),
+          ListTile(
+            leading: const Icon(
+              Icons.score,
+              size: 26,
+            ),
+            title: const Text(
+              'Scoreboard',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: () {
+              Navigator.pushReplacementNamed(context, ScoreBoard.routeName);
             },
           ),
           ListTile(

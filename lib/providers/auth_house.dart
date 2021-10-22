@@ -134,6 +134,7 @@ class AuthHouse with ChangeNotifier {
 
   void resetHouseName() {
     _houseName = '';
+
     notifyListeners();
   }
 }
