@@ -73,10 +73,9 @@ class _TasksOverviewScreenState extends State<TasksOverviewScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
+                          Text('Hey $userName'),
                           Text(
                               'Total Score: ${tasks.getTotalScore(userName!)}'),
-                          // ignore: prefer_const_constructors
-                          Text('Hey $userName'),
                         ],
                       )),
                   Expanded(

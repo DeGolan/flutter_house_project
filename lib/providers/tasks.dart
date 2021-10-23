@@ -194,6 +194,19 @@ class Tasks extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> removeToDoTask(String taskId) async {
+    final url = Uri.parse(
+        'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/houses/$_houseId/tasks/to-do-list/$taskId.json?auth=$_authToken');
+    try {
+      //deleting current task from to do list in firebase
+      await http.delete(url);
+      _toDoList.removeWhere((taskToFind) => taskToFind.id == taskId);
+      notifyListeners();
+    } catch (error) {
+      rethrow;
+    }
+  }
+
   Future<void> markAsDone(String taskId, String notes, String doneBy) async {
     final url = Uri.parse(
         'https://house-project-49c61-default-rtdb.europe-west1.firebasedatabase.app/houses/$_houseId/tasks/to-do-list/$taskId.json?auth=$_authToken');
@@ -234,14 +247,9 @@ class Tasks extends ChangeNotifier {
           rethrow;
         }
         _doneList.insert(0, task);
-        try {
-          //deleting current task from to do list in firebase
-          await http.delete(url);
-          _toDoList.removeWhere((taskToFind) => taskToFind.id == taskId);
-          notifyListeners();
-        } catch (error) {
-          rethrow;
-        }
+
+        //deleting current task from to do list in firebase
+        await removeToDoTask(taskId);
         notifyListeners();
       }
     } catch (error) {

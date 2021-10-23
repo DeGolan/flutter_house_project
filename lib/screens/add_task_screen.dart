@@ -213,7 +213,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     },
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'Please enter a price.';
+                        return 'Please enter points.';
                       }
                       if (double.tryParse(value) == null) {
                         return 'Please enter a valid number.';

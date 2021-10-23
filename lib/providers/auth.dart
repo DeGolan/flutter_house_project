@@ -68,7 +68,8 @@ class Auth with ChangeNotifier {
       if (responseData['error'] != null) {
         throw HttpExeption(responseData['error']['message']);
       }
-      _userName = email;
+      var index = email!.indexOf('@');
+      index > 0 ? _userName = email.substring(0, index) : _userName = email;
       _token = responseData['idToken'];
       _userId = responseData['localId'];
       Provider.of<AuthHouse>(context, listen: false)
