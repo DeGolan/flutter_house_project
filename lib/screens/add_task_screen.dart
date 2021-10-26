@@ -166,6 +166,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Please provide a value.';
+                      } else if (value.length > 18) {
+                        return 'Please provide a name between 1-18 characters.';
                       }
                       return null;
                     },
@@ -219,8 +221,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         return 'Please enter a valid number.';
                       }
                       if (double.parse(value) <= 0 ||
-                          double.parse(value) > 100) {
-                        return 'Please enter a number between 1-100.';
+                          double.parse(value) >= 100) {
+                        return 'Please enter a number between 1-99.';
                       }
                       return null;
                     },

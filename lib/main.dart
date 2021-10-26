@@ -37,6 +37,17 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer2<Auth, AuthHouse>(
         builder: (ctx, auth, authHouse, _) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+              scaffoldBackgroundColor: Colors.white,
+              primarySwatch: Colors.lightGreen,
+              appBarTheme: const AppBarTheme(
+                  titleTextStyle: TextStyle(
+                      color: Colors.lightGreen,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold),
+                  backgroundColor: Colors.white,
+                  iconTheme: IconThemeData(color: Colors.lightGreen))),
           home: auth.isAuth
               ? authHouse.isAuth
                   ? const TasksOverviewScreen()

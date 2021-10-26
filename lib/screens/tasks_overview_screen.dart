@@ -73,9 +73,28 @@ class _TasksOverviewScreenState extends State<TasksOverviewScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text('Hey $userName'),
-                          Text(
-                              'Total Score: ${tasks.getTotalScore(userName!)}'),
+                          Text.rich(TextSpan(
+                              style: const TextStyle(fontSize: 20),
+                              children: [
+                                const TextSpan(text: 'Welcome home '),
+                                TextSpan(
+                                    text: '$userName!',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold))
+                              ])),
+                          Text.rich(
+                            TextSpan(
+                                style: const TextStyle(fontSize: 16),
+                                children: [
+                                  const TextSpan(text: 'Your total score is\n'),
+                                  TextSpan(
+                                      text:
+                                          '${tasks.getTotalScore(userName!)} points',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold))
+                                ]),
+                            textAlign: TextAlign.center,
+                          ),
                         ],
                       )),
                   Expanded(

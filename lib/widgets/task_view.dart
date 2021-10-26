@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:pie_chart/pie_chart.dart';
 
 import '../providers/task.dart';
 import '../screens/task_detail_screen.dart';
@@ -13,7 +14,6 @@ class TaskView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timeLeft = calculateTimeLeft(task.dueDate!);
     return Dismissible(
       key: ValueKey(task.id),
       background: Container(
@@ -34,62 +34,71 @@ class TaskView extends StatelessWidget {
       },
       child: Card(
         // color:
-        shape: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.white)),
-        elevation: 2,
-        margin: const EdgeInsets.all(4),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-            gradient: LinearGradient(
-              colors:
-                  // const Color.fromRGBO(215, 117, 255, 1).withOpacity(0.5),
-                  // const Color.fromRGBO(255, 188, 117, 1).withOpacity(0.9),
-                  timeLeft.contains('days')
-                      ? [Colors.green, Colors.green.shade100]
-                      : timeLeft.contains('hours')
-                          ? [Colors.yellow, Colors.yellow.shade100]
-                          : timeLeft.contains('minutes')
-                              ? [Colors.orange, Colors.orange.shade100]
-                              : [Colors.red, Colors.red.shade100],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              stops: const [0, 1],
-            ),
-          ),
-          child: ListTile(
-            onTap: () {
-              Navigator.of(context)
-                  .pushNamed(TaskDetailScreen.routeName, arguments: task.id);
-            },
-            leading: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        // shape: OutlineInputBorder(
+        //     borderRadius: BorderRadius.circular(10),
+        //     borderSide: const BorderSide(color: Colors.white)),
+        elevation: 0,
+        // margin: const EdgeInsets.all(4),
+        child: ListTile(
+          onTap: () {
+            Navigator.of(context)
+                .pushNamed(TaskDetailScreen.routeName, arguments: task.id);
+          },
+          leading: Container(
+            width: 280,
+            height: 80,
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(10)),
+            child: Padding(
+              padding: const EdgeInsets.all(5),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    task.name,
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    calculateTimeLeft(task.dueDate!),
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text(
+                          task.name,
+                          style: const TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                        Text(
+                          calculateTimeLeft(task.dueDate!),
+                          style: const TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                      ]),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Divider(),
+                      Text(
+                        '${task.points} Points',
+                        style: const TextStyle(
+                          fontSize: 16,
+                        ),
+                      )
+                    ],
                   )
                 ],
               ),
             ),
-            trailing: Padding(
-              padding: const EdgeInsets.only(right: 20),
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle, color: Colors.grey.shade100),
-                child: Text(
-                  '${task.points}',
-                  style: const TextStyle(fontSize: 30),
-                ),
-              ),
+          ),
+          trailing: SizedBox(
+            height: 80,
+            width: 80,
+            child: PieChart(
+              initialAngleInDegree: 270,
+              dataMap: dataMap(task.dueDate!),
+              colorList: colorList(task.dueDate!),
+              legendOptions: const LegendOptions(showLegends: false),
+              chartValuesOptions:
+                  const ChartValuesOptions(showChartValues: false),
             ),
           ),
         ),
@@ -97,10 +106,45 @@ class TaskView extends StatelessWidget {
     );
   }
 
+  Map<String, double> dataMap(DateTime due) {
+    final difference = due.difference(DateTime.now());
+    return difference.inDays < 1
+        ? difference.inHours < 1
+            ? difference.isNegative
+                ? {'timeLeft': 1} //overDue
+                : {
+                    'rest': 60 - difference.inMinutes.toDouble(),
+                    'timeLeft': difference.inMinutes.toDouble()
+                  } //min
+            : {
+                'rest': 24 - difference.inHours.toDouble(),
+                'timeLeft': difference.inHours.toDouble()
+              } //hours
+        : difference.inDays.toDouble() < 7
+            ? {
+                'rest': 7 - difference.inDays.toDouble(),
+                'timeleft': difference.inDays.toDouble()
+              }
+            : {'timeLeft': 1}; //days
+  }
+
+  List<Color> colorList(DateTime due) {
+    final difference = due.difference(DateTime.now());
+    return difference.inDays < 1
+        ? difference.inHours < 1
+            ? difference.isNegative
+                ? [Colors.red] //overDue
+                : [Colors.red.shade100, Colors.red] //min
+            : [Colors.yellow.shade100, Colors.yellow] //hours
+        : difference.inDays.toDouble() < 7
+            ? [Colors.green.shade100, Colors.green]
+            : [Colors.green]; //days
+  }
+
   String calculateTimeLeft(DateTime due) {
     final difference = due.difference(DateTime.now());
-    return difference.inDays <= 1
-        ? difference.inHours <= 2
+    return difference.inDays < 1
+        ? difference.inHours < 1
             ? difference.isNegative
                 ? 'overdue'
                 : '${difference.inMinutes} minutes left'
